@@ -70,12 +70,9 @@ function buildChrome(contentSlot) {
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
   addBtn.className = 'btn btn-default btn-sm betabs-add';
-  addBtn.title = 'Aktives Modul in neuem Tab öffnen';
+  addBtn.title = 'Neuen Tab öffnen';
   addBtn.innerHTML = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
-  addBtn.addEventListener('click', () => {
-    const a = getActiveTab();
-    if (a) createTab(a.module, a.url, true);
-  });
+  addBtn.addEventListener('click', () => createTab(null, null, true));
   bar.appendChild(addBtn);
 
   const frames = document.createElement('div');
@@ -84,7 +81,7 @@ function buildChrome(contentSlot) {
   const empty = document.createElement('div');
   empty.className = 'betabs-empty';
   empty.innerHTML = `
-    <svg class="betabs-empty-icon" width="64" height="40" viewBox="0 0 64 40" fill="none" aria-hidden="true">
+    <svg class="betabs-empty-icon" width="88" height="55" viewBox="0 0 64 40" fill="none" aria-hidden="true">
       <path d="M2 38 L2 10 Q2 4 8 4 L20 4 Q24 4 26 8 L28 12 L56 12 Q62 12 62 18 L62 38"
             stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
       <line x1="24" y1="24" x2="40" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -100,8 +97,16 @@ function buildChrome(contentSlot) {
   els = { wrap, bar, frames, addBtn, empty };
 }
 
+// Shows the placeholder whenever the ACTIVE tab has nothing loaded (a freshly
+// opened "+" tab, or no tabs at all) and hides the page tree for it, since
+// core's own module-load listener only reacts to a truthy module name.
 function updateEmptyState() {
-  if (els.empty) els.empty.hidden = tabs.length > 0;
+  const active = getActiveTab();
+  const isEmpty = !active || !active.url;
+  if (els.empty) els.empty.hidden = !isEmpty;
+  if (isEmpty) {
+    try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
+  }
 }
 
 function makeTabEl(tab) {
@@ -134,22 +139,18 @@ function updateLabel(tab) {
 
 // --- tab lifecycle --------------------------------------------------------
 
+// url may be null/omitted to open a blank tab (the "+" button) — its iframe
+// is created lazily by loadTab() once a module actually gets loaded into it.
 function createTab(module, url, activate = true) {
-  const iframe = document.createElement('iframe');
-  iframe.className = 'betabs-frame';
-  iframe.setAttribute('hidden', '');
-  els.frames.appendChild(iframe);
-
-  const tab = { id: ++seq, module: module || null, url, currentId: getId(url), iframe, tabEl: null, labelEl: null, title: null };
-  iframe.addEventListener('load', () => onFrameLoad(tab));
+  const tab = { id: ++seq, module: module || null, url: null, currentId: null, iframe: null, tabEl: null, labelEl: null, title: null };
 
   tab.tabEl = makeTabEl(tab);
   els.bar.insertBefore(tab.tabEl, els.addBtn);
   tabs.push(tab);
-  updateEmptyState();
 
-  loadTab(tab, url, tab.currentId);
+  if (url) loadTab(tab, url, getId(url));
   if (activate) activateTab(tab);
+  updateEmptyState();
   persist();
   return tab;
 }
@@ -157,6 +158,14 @@ function createTab(module, url, activate = true) {
 function loadTab(tab, url, idParam) {
   tab.url = url;
   tab.currentId = idParam;
+  if (!tab.iframe) {
+    const iframe = document.createElement('iframe');
+    iframe.className = 'betabs-frame';
+    iframe.setAttribute('hidden', '');
+    iframe.addEventListener('load', () => onFrameLoad(tab));
+    els.frames.appendChild(iframe);
+    tab.iframe = iframe;
+  }
   tab.iframe.setAttribute('src', url);
 }
 
@@ -167,6 +176,7 @@ function activateTab(tab) {
     const active = t.id === activeTabId;
     t.tabEl?.classList.toggle('betabs-tab--active', active);
     const f = t.iframe;
+    if (!f) return;
     if (active) {
       f.removeAttribute('hidden');
       f.setAttribute('name', 'list_frame');
@@ -184,21 +194,22 @@ function activateTab(tab) {
   });
   if (tab.title) document.title = tab.title;
   dispatchModuleLoaded(tab);
+  updateEmptyState();
   persist();
 }
 
 function closeTab(tab) {
   const idx = tabs.indexOf(tab);
   if (idx === -1) return;
-  tab.iframe.remove();
+  tab.iframe?.remove();
   tab.tabEl.remove();
   tabs.splice(idx, 1);
-  updateEmptyState();
   if (activeTabId === tab.id) {
     activeTabId = null;
     const next = tabs[idx] || tabs[idx - 1] || null;
     if (next) activateTab(next);
   }
+  updateEmptyState();
   persist();
 }
 
@@ -256,7 +267,7 @@ function navigateOrFocus(module, url) {
   if (!module) {
     // in-module navigation without module hint → keep it in the active tab
     const a = getActiveTab();
-    if (a) loadTab(a, url, getId(url));
+    if (a) { loadTab(a, url, getId(url)); activateTab(a); }
     else createTab(null, url, true);
     return;
   }

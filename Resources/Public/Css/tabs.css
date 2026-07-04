@@ -113,9 +113,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 1.25rem;
     color: var(--typo3-text-color-base, #1a1a1a);
-    opacity: 0.5;
     text-align: center;
     pointer-events: none;
     user-select: none;
@@ -126,24 +125,32 @@
 }
 
 .betabs-empty-icon {
+    color: color-mix(in srgb, var(--typo3-state-primary-color, #2175d9), var(--typo3-text-color-base, #1a1a1a) 35%);
+    opacity: .7;
     animation: betabs-empty-breathe 3.5s ease-in-out infinite;
 }
 
 .betabs-empty-title {
     margin: 0;
-    font-size: 13px;
+    font-family: var(--typo3-header-font-family, inherit);
+    font-size: 19px;
+    font-weight: 600;
+    opacity: .8;
 }
 
 .betabs-empty-cta {
     margin: 0;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    padding: .45rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--typo3-state-primary-bg, #2175d9), transparent 85%);
+    color: var(--typo3-state-primary-color, #2175d9);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    opacity: 0.85;
 }
 
 @keyframes betabs-empty-breathe {
-    0%, 100% { opacity: 0.4; }
+    0%, 100% { opacity: 0.45; }
     50% { opacity: 0.85; }
 }
