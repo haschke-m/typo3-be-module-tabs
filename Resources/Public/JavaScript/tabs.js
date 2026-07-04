@@ -109,10 +109,23 @@ function updateEmptyState() {
   }
 }
 
+// The module menu already renders each module's icon as inline SVG
+// (core:icon alternativeMarkupIdentifier="inline") — clone that instead of
+// re-resolving icon identifiers ourselves; fall back to a generic window/tab
+// icon when a module has no menu entry to clone from.
+function getModuleIconMarkup(module) {
+  const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
+  return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
+}
+
 function makeTabEl(tab) {
   const el = document.createElement('div');
   el.className = 'betabs-tab';
   el.setAttribute('role', 'tab');
+
+  const icon = document.createElement('span');
+  icon.className = 'betabs-tab-icon';
+  icon.innerHTML = getModuleIconMarkup(tab.module);
 
   const label = document.createElement('span');
   label.className = 'betabs-tab-label';
@@ -124,10 +137,11 @@ function makeTabEl(tab) {
   close.innerHTML = '<typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>';
   close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 
-  el.append(label, close);
+  el.append(icon, label, close);
   el.addEventListener('click', () => activateTab(tab));
   el.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeTab(tab); } });
 
+  tab.iconEl = icon;
   tab.labelEl = label;
   return el;
 }
@@ -135,6 +149,7 @@ function makeTabEl(tab) {
 function updateLabel(tab) {
   if (tab.labelEl) tab.labelEl.textContent = tab.title || tab.module || '…';
   if (tab.tabEl) tab.tabEl.title = tab.title || tab.module || '';
+  if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
 }
 
 // --- tab lifecycle --------------------------------------------------------

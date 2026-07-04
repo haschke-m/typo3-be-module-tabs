@@ -33,15 +33,15 @@
     --betabs-tab-bg: color-mix(in srgb, var(--typo3-surface-container-lowest, #fff), var(--betabs-tab-color) 5%);
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: .44rem;
     max-width: 240px;
-    padding: .55rem .85rem;
+    padding: .48rem .75rem;
     margin-block-end: -1px;
     border: 1px solid color-mix(in srgb, var(--betabs-tab-bg), var(--betabs-tab-color) var(--typo3-border-mix, 17.5%));
     border-radius: var(--typo3-component-border-radius, .75em) var(--typo3-component-border-radius, .75em) 0 0;
     background: var(--betabs-tab-bg);
     color: var(--betabs-tab-color);
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1.4;
     cursor: pointer;
     white-space: nowrap;
@@ -59,6 +59,20 @@
     border-bottom-color: var(--betabs-tab-bg);
 }
 
+.betabs-tab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+}
+
+.betabs-tab-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
 .betabs-tab-label {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -70,8 +84,8 @@
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     opacity: .6;
 }
