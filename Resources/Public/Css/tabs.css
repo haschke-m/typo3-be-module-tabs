@@ -168,3 +168,35 @@
     0%, 100% { opacity: 0.45; }
     50% { opacity: 0.85; }
 }
+
+.betabs-tooltip {
+    position: fixed;
+    z-index: 30000;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: 260px;
+    padding: .5rem .75rem;
+    transform: translateY(-50%);
+    border-radius: var(--typo3-component-border-radius, .75em);
+    border: 1px solid var(--typo3-surface-container-highest, #444);
+    background: var(--typo3-surface-container-high, #2a2a2a);
+    color: var(--typo3-text-color-base, #fff);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+    font-size: 12px;
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .12s ease-in-out;
+}
+
+.betabs-tooltip--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.betabs-tooltip typo3-backend-icon {
+    flex: 0 0 auto;
+    color: var(--typo3-state-primary-color, #2175d9);
+}

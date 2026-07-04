@@ -343,6 +343,39 @@ function wireNewTabGesture() {
   document.addEventListener('auxclick', handler, true);
 }
 
+// Replace the browser's native title tooltip on module menu items with our
+// own, hinting at the Ctrl-click-for-new-tab gesture above.
+function wireModuleTooltip() {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'betabs-tooltip';
+  tooltip.innerHTML = '<typo3-backend-icon identifier="actions-info" size="small"></typo3-backend-icon>'
+      + '<span>Try using CTRL + Mouse click to open in a new tab!</span>';
+  document.body.appendChild(tooltip);
+
+  let current = null;
+  const position = (target) => {
+    const rect = target.getBoundingClientRect();
+    tooltip.style.top = `${rect.top + rect.height / 2}px`;
+    tooltip.style.left = `${rect.right + 12}px`;
+  };
+
+  document.addEventListener('mouseover', (e) => {
+    const link = e.target.closest('[data-moduleroute-identifier]');
+    if (!link || link === current) return;
+    current = link;
+    link.removeAttribute('title');
+    position(link);
+    tooltip.classList.add('betabs-tooltip--visible');
+  }, true);
+
+  document.addEventListener('mouseout', (e) => {
+    if (!current || current !== e.target.closest('[data-moduleroute-identifier]')) return;
+    if (e.relatedTarget && current.contains(e.relatedTarget)) return;
+    current = null;
+    tooltip.classList.remove('betabs-tooltip--visible');
+  }, true);
+}
+
 export async function initialize() {
   if (initialized || self !== top) return;
   try {
@@ -367,6 +400,7 @@ export async function initialize() {
 
     overrideContentContainer(cc);
     wireNewTabGesture();
+    wireModuleTooltip();
 
     const saved = restore();
     if (saved && saved.length) {
