@@ -18,11 +18,10 @@ final class BackendAssetListener
     public function __invoke(): void
     {
         $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
-            JavaScriptModuleInstruction::create('@haschke/be-tabs/tabs.js')
+            JavaScriptModuleInstruction::create('@haschke/be-tabs/main.js')
         );
         $this->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs.css');
 
-        // v13 renders backend icons larger than v14; nudge the tab spacing.
         if ((new Typo3Version())->getMajorVersion() === 13) {
             $this->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs-v13.css');
         }
