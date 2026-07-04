@@ -188,6 +188,21 @@ function onFrameLoad(tab) {
   try {
     const doc = tab.iframe.contentDocument;
     if (doc) {
+      // TYPO3's BackendModuleValidator redirects a module request to the full
+      // backend scaffold ("main" route) whenever it sees Sec-Fetch-Dest: document
+      // (its heuristic for "opened directly, not embedded"). Our dynamically
+      // created iframes are legitimate embeds, but some loads still trip this —
+      // unwrap by pulling the real module endpoint out of the nested scaffold's
+      // router and loading that directly instead of the full chrome.
+      const nestedRouter = doc.querySelector('typo3-backend-module-router');
+      if (nestedRouter) {
+        const realEndpoint = nestedRouter.getAttribute('endpoint');
+        if (realEndpoint && realEndpoint !== tab.url) {
+          console.debug('[be_tabs] unwrapping nested backend scaffold →', realEndpoint);
+          loadTab(tab, realEndpoint, getId(realEndpoint));
+          return;
+        }
+      }
       title = doc.title || title;
       const moduleEl = doc.body && doc.body.querySelector('.module[data-module-name]');
       if (moduleEl) moduleName = moduleEl.getAttribute('data-module-name');
