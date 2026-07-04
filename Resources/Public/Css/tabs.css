@@ -1,44 +1,62 @@
+/*
+ * Visual language borrowed from TYPO3's own Dashboard module tabs
+ * (EXT:dashboard Resources/Public/Css/dashboard.css: .dashboard-tab /
+ * .dashboard-tab--active) so our tab bar looks native, not bolted-on.
+ */
+
 .betabs-wrap {
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
-    background: var(--typo3-component-bg, #fff);
+    background: var(--typo3-surface-container-lowest, #fff);
 }
 
 .betabs-bar {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     flex: 0 0 auto;
-    min-height: 34px;
-    gap: 2px;
-    padding: 4px 4px 0;
-    background: var(--typo3-component-border-color, #d7d7d7);
+    gap: .25rem;
+    padding: .5rem 1rem 0;
+    background: var(--typo3-surface-container-high, #f1f1f1);
+    border-bottom: 1px solid var(--typo3-surface-container-highest, #d7d7d7);
     overflow-x: auto;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+}
+
+.betabs-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .betabs-tab {
+    --betabs-tab-color: var(--typo3-text-color-base, #1a1a1a);
+    --betabs-tab-bg: color-mix(in srgb, var(--typo3-surface-container-lowest, #fff), var(--betabs-tab-color) 5%);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: .5rem;
     max-width: 240px;
-    padding: 4px 8px 4px 12px;
-    border: 1px solid var(--typo3-component-border-color, #d7d7d7);
-    border-bottom: none;
-    border-radius: 6px 6px 0 0;
-    background: var(--typo3-component-bg-secondary, #f1f1f1);
-    color: var(--typo3-text-color-base, #1a1a1a);
+    padding: .55rem .85rem;
+    margin-block-end: -1px;
+    border: 1px solid color-mix(in srgb, var(--betabs-tab-bg), var(--betabs-tab-color) var(--typo3-border-mix, 17.5%));
+    border-radius: var(--typo3-component-border-radius, .75em) var(--typo3-component-border-radius, .75em) 0 0;
+    background: var(--betabs-tab-bg);
+    color: var(--betabs-tab-color);
     font-size: 12px;
     line-height: 1.4;
     cursor: pointer;
     white-space: nowrap;
     user-select: none;
+    transition: background-color .15s ease-in-out;
 }
 
-.betabs-tab.active {
-    background: var(--typo3-component-bg, #fff);
+.betabs-tab:hover {
+    --betabs-tab-bg: color-mix(in srgb, var(--typo3-surface-container-lowest, #fff), var(--betabs-tab-color) 10%);
+}
+
+.betabs-tab--active {
+    --betabs-tab-bg: var(--typo3-surface-container-lowest, #fff);
     font-weight: 600;
+    border-bottom-color: var(--betabs-tab-bg);
 }
 
 .betabs-tab-label {
@@ -48,38 +66,26 @@
 }
 
 .betabs-tab-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    line-height: 15px;
-    text-align: center;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    font-size: 14px;
-    opacity: 0.55;
+    opacity: .6;
 }
 
 .betabs-tab-close:hover {
     opacity: 1;
-    background: rgba(0, 0, 0, 0.12);
+    background: color-mix(in srgb, currentColor 15%, transparent);
 }
 
 .betabs-add {
     flex: 0 0 auto;
     align-self: center;
-    width: 28px;
-    height: 26px;
-    margin-left: 2px;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--typo3-text-color-base, #1a1a1a);
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-}
-
-.betabs-add:hover {
-    background: rgba(0, 0, 0, 0.1);
+    margin-inline-start: .25rem;
+    margin-block-end: .25rem;
 }
 
 .betabs-frames {
@@ -98,4 +104,46 @@
 
 .betabs-frame[hidden] {
     display: none;
+}
+
+.betabs-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--typo3-text-color-base, #1a1a1a);
+    opacity: 0.5;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+}
+
+.betabs-empty[hidden] {
+    display: none;
+}
+
+.betabs-empty-icon {
+    animation: betabs-empty-breathe 3.5s ease-in-out infinite;
+}
+
+.betabs-empty-title {
+    margin: 0;
+    font-size: 13px;
+}
+
+.betabs-empty-cta {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+@keyframes betabs-empty-breathe {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.85; }
 }

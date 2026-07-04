@@ -69,9 +69,9 @@ function buildChrome(contentSlot) {
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
-  addBtn.className = 'betabs-add';
+  addBtn.className = 'btn btn-default btn-sm betabs-add';
   addBtn.title = 'Aktives Modul in neuem Tab öffnen';
-  addBtn.textContent = '+';
+  addBtn.innerHTML = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
   addBtn.addEventListener('click', () => {
     const a = getActiveTab();
     if (a) createTab(a.module, a.url, true);
@@ -81,9 +81,27 @@ function buildChrome(contentSlot) {
   const frames = document.createElement('div');
   frames.className = 'betabs-frames';
 
+  const empty = document.createElement('div');
+  empty.className = 'betabs-empty';
+  empty.innerHTML = `
+    <svg class="betabs-empty-icon" width="64" height="40" viewBox="0 0 64 40" fill="none" aria-hidden="true">
+      <path d="M2 38 L2 10 Q2 4 8 4 L20 4 Q24 4 26 8 L28 12 L56 12 Q62 12 62 18 L62 38"
+            stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <line x1="24" y1="24" x2="40" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="32" y1="16" x2="32" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p class="betabs-empty-title">It's a little quiet in here.</p>
+    <p class="betabs-empty-cta">Start working now!</p>
+  `;
+  frames.appendChild(empty);
+
   wrap.append(bar, frames);
   contentSlot.appendChild(wrap);
-  els = { wrap, bar, frames, addBtn };
+  els = { wrap, bar, frames, addBtn, empty };
+}
+
+function updateEmptyState() {
+  if (els.empty) els.empty.hidden = tabs.length > 0;
 }
 
 function makeTabEl(tab) {
@@ -98,7 +116,7 @@ function makeTabEl(tab) {
   const close = document.createElement('span');
   close.className = 'betabs-tab-close';
   close.title = 'Tab schließen';
-  close.textContent = '×';
+  close.innerHTML = '<typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>';
   close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 
   el.append(label, close);
@@ -128,6 +146,7 @@ function createTab(module, url, activate = true) {
   tab.tabEl = makeTabEl(tab);
   els.bar.insertBefore(tab.tabEl, els.addBtn);
   tabs.push(tab);
+  updateEmptyState();
 
   loadTab(tab, url, tab.currentId);
   if (activate) activateTab(tab);
@@ -146,7 +165,7 @@ function activateTab(tab) {
   activeTabId = tab.id;
   tabs.forEach((t) => {
     const active = t.id === activeTabId;
-    t.tabEl?.classList.toggle('active', active);
+    t.tabEl?.classList.toggle('betabs-tab--active', active);
     const f = t.iframe;
     if (active) {
       f.removeAttribute('hidden');
@@ -174,6 +193,7 @@ function closeTab(tab) {
   tab.iframe.remove();
   tab.tabEl.remove();
   tabs.splice(idx, 1);
+  updateEmptyState();
   if (activeTabId === tab.id) {
     activeTabId = null;
     const next = tabs[idx] || tabs[idx - 1] || null;
