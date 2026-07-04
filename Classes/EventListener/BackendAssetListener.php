@@ -4,20 +4,27 @@ declare(strict_types=1);
 
 namespace Haschke\BeTabs\EventListener;
 
-use TYPO3\CMS\Backend\Controller\Event\BeforeBackendPageRenderEvent;
+use TYPO3\CMS\Backend\Controller\Event\AfterBackendPageRenderEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
+use TYPO3\CMS\Core\Page\PageRenderer;
 
 final class BackendAssetListener
 {
-    #[AsEventListener(event: BeforeBackendPageRenderEvent::class)]
-    public function __invoke(BeforeBackendPageRenderEvent $event): void
+    public function __construct(private readonly PageRenderer $pageRenderer) {}
+
+    #[AsEventListener(event: AfterBackendPageRenderEvent::class)]
+    public function __invoke(): void
     {
-        // Side-effect module: it self-initializes on import (invoke() would target
-        // a default export, which we don't have).
-        $event->javaScriptRenderer->addJavaScriptModuleInstruction(
+        $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
             JavaScriptModuleInstruction::create('@haschke/be-tabs/tabs.js')
         );
-        $event->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs.css');
+        $this->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs.css');
+
+        // v13 renders backend icons larger than v14; nudge the tab spacing.
+        if ((new Typo3Version())->getMajorVersion() === 13) {
+            $this->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs-v13.css');
+        }
     }
 }

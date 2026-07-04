@@ -1,0 +1,12 @@
+/*
+ * v13-only overrides. The backend icon set renders larger in TYPO3 v13 than
+ * in v14, so the tab needs more breathing room between icon and label.
+ */
+
+.betabs-tab {
+    gap: 1.3rem;
+}
+
+.betabs-tab-icon {
+    margin-inline-start: -3px;
+}
