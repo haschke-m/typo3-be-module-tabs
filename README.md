@@ -17,19 +17,3 @@ open module instead of resetting it.
 - Clicking a module that is already open focuses its tab instead of
   reloading it.
 - Open tabs are restored after a full backend reload.
-
-## Installation
-
-Requires TYPO3 v14.
-
-```
-composer require haschke/be-tabs
-```
-
-Then activate the extension, e.g.:
-
-```
-vendor/bin/typo3 extension:setup
-```
-
-No further configuration is needed.
