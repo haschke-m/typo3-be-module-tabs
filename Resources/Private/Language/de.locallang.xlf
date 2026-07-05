@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff version="1.0">
+    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-07-05T00:00:00Z" product-name="be_tabs">
+        <header/>
+        <body>
+            <trans-unit id="userSettings.tab" resname="userSettings.tab">
+                <source>Tabs</source>
+                <target>Tabs</target>
+            </trans-unit>
+            <trans-unit id="userSettings.disable" resname="userSettings.disable">
+                <source>Disable tabs</source>
+                <target>Tabs deaktivieren</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
