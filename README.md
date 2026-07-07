@@ -3,6 +3,8 @@
 Browser-like tab navigation for the TYPO3 backend.  
 Currently supporting TYPO3 v13 and v14.
 
+<img width="800" height="493" alt="example be tabs (2)" src="https://github.com/user-attachments/assets/b78d667a-35d8-4a27-95d1-c9624f4077d0" />
+
 ## What it does
 
 By default, the TYPO3 backend has a single content area. Switching modules

@@ -17,6 +17,10 @@ final class BackendAssetListener
     #[AsEventListener(event: AfterBackendPageRenderEvent::class)]
     public function __invoke(): void
     {
+        if ($GLOBALS['BE_USER']->uc['tx_betabs_disable'] ?? false) {
+            return;
+        }
+
         $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
             JavaScriptModuleInstruction::create('@haschke/be-tabs/main.js')
         );
