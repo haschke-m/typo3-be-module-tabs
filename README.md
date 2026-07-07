@@ -3,7 +3,7 @@
 Browser-like tab navigation for the TYPO3 backend.  
 Currently supporting TYPO3 v13 and v14.
 
-<img width="800" height="493" alt="example be tabs" src="https://github.com/user-attachments/assets/1f7f0dee-56a5-47cf-9dc3-b11af1e1edf8" />
+<img width="800" height="493" alt="example be tabs (2)" src="https://github.com/user-attachments/assets/b78d667a-35d8-4a27-95d1-c9624f4077d0" />
 
 ## What it does
 
