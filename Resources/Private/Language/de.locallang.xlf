@@ -11,6 +11,26 @@
                 <source>Disable tabs</source>
                 <target>Tabs deaktivieren</target>
             </trans-unit>
+            <trans-unit id="beTabs.newTab" resname="beTabs.newTab">
+                <source>Open new tab</source>
+                <target>Neuen Tab öffnen</target>
+            </trans-unit>
+            <trans-unit id="beTabs.closeTab" resname="beTabs.closeTab">
+                <source>Close tab</source>
+                <target>Tab schließen</target>
+            </trans-unit>
+            <trans-unit id="beTabs.emptyTitle" resname="beTabs.emptyTitle">
+                <source>It's a little quiet in here.</source>
+                <target>Hier ist es noch ruhig.</target>
+            </trans-unit>
+            <trans-unit id="beTabs.emptyCta" resname="beTabs.emptyCta">
+                <source>Start working now!</source>
+                <target>Leg jetzt los!</target>
+            </trans-unit>
+            <trans-unit id="beTabs.newTabHint" resname="beTabs.newTabHint">
+                <source>Try using CTRL + Mouse click to open in a new tab!</source>
+                <target>Tipp: STRG + Mausklick öffnet ein Modul in einem neuen Tab!</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -1,4 +1,5 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
+import { localize } from './tab-utility.js';
 
 // setup tab navigation bar and content wrapper
 // returns dom handles to get used by tabs.js
@@ -18,7 +19,7 @@ export function setupTabNavigation(contentSlot) {
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'btn btn-default btn-sm betabs-add';
-    addBtn.title = 'Neuen Tab öffnen';
+    addBtn.title = localize('beTabs.newTab', 'Open new tab');
     addBtn.innerHTML = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
     addBtn.addEventListener('click', () => createTab(null, null, true));
     bar.appendChild(addBtn);
@@ -35,8 +36,8 @@ export function setupTabNavigation(contentSlot) {
       <line x1="24" y1="24" x2="40" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <line x1="32" y1="16" x2="32" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <p class="betabs-empty-title">It's a little quiet in here.</p>
-    <p class="betabs-empty-cta">Start working now!</p>
+    <p class="betabs-empty-title">${localize('beTabs.emptyTitle', "It's a little quiet in here.")}</p>
+    <p class="betabs-empty-cta">${localize('beTabs.emptyCta', 'Start working now!')}</p>
   `;
     frames.appendChild(empty);
 
@@ -82,7 +83,7 @@ export function createTabElement(tab) {
 
     const close = document.createElement('span');
     close.className = 'betabs-tab-close';
-    close.title = 'Tab schließen';
+    close.title = localize('beTabs.closeTab', 'Close tab');
     close.innerHTML = '<typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>';
     close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 

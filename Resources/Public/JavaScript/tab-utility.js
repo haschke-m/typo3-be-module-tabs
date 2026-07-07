@@ -22,3 +22,7 @@ export function getPageId(url) {
         return null;
     }
 }
+
+export function localize(key, fallback) {
+    return top.TYPO3?.lang?.[key] || fallback;
+}

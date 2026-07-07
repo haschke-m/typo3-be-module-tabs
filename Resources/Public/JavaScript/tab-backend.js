@@ -2,6 +2,7 @@
  * functions to integrate tab behaviour in TYPO3 backend modules
  */
 import { navigateOrFocusTab, getActiveTab, createTab } from './tabs.js';
+import { localize } from './tab-utility.js';
 
 // hook into ContentContainer and route everything into iframe pool
 export function overrideBackendContentContainer(cc) {
@@ -45,7 +46,7 @@ export function wireModuleTooltip() {
     const tooltip = document.createElement('div');
     tooltip.className = 'betabs-tooltip';
     tooltip.innerHTML = '<typo3-backend-icon identifier="actions-info" size="small"></typo3-backend-icon>'
-        + '<span>Try using CTRL + Mouse click to open in a new tab!</span>';
+        + `<span>${localize('beTabs.newTabHint', 'Try using CTRL + Mouse click to open in a new tab!')}</span>`;
     document.body.appendChild(tooltip);
 
     let current = null;
