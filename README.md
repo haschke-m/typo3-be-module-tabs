@@ -15,11 +15,14 @@ be_tabs adds a tab bar above the module content area. Each tab keeps its own
 persistent iframe, so switching between tabs preserves the state of every
 open module instead of resetting it.
 
+## Features
+
 - Click a module in the module menu to load it in the active tab.
 - Ctrl/Cmd-click (or middle-click) a module to open it in a new tab.
 - Clicking a module that is already open focuses its tab instead of
   reloading it.
 - Open tabs are restored after a full backend reload.
+- Tabbing can be disabled in the backend user settings.
 
 ## Installation
 
