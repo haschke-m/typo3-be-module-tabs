@@ -26,7 +26,7 @@ export function createTab(module, url, activate = true) {
   const tab = { id: ++tabIdSeq, module: module || null, url: null, pageId: null, iframe: null, tabEl: null, labelEl: null, title: null };
 
   tab.tabEl = createTabElement(tab);
-  dom.bar.insertBefore(tab.tabEl, dom.addBtn);
+  dom.scroll.appendChild(tab.tabEl);
   tabs.push(tab);
 
   if (url) loadTab(tab, url, getPageId(url));
@@ -72,6 +72,8 @@ export function activateTab(tab) {
       f.classList.remove(...IFRAME_CLASSES);
     }
   });
+  // bring the tab into view if it sits outside the scroll strip
+  tab.tabEl?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
   if (tab.title) document.title = tab.title;
   dispatchModuleLoaded(tab);
   updateEmptyState();

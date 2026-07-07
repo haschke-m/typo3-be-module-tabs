@@ -20,11 +20,29 @@
     padding: .5rem 1rem 0;
     background: var(--typo3-surface-container-high, #f1f1f1);
     border-bottom: 1px solid var(--typo3-surface-container-highest, #d7d7d7);
+}
+
+.betabs-scroll {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: .25rem;
     overflow-x: auto;
     scrollbar-width: none;
 }
 
-.betabs-bar::-webkit-scrollbar {
+.betabs-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.betabs-scroll-btn {
+    flex: 0 0 auto;
+    align-self: center;
+    margin-block-end: .25rem;
+}
+
+.betabs-scroll-btn[hidden] {
     display: none;
 }
 
@@ -34,6 +52,7 @@
     display: flex;
     align-items: center;
     gap: .44rem;
+    min-width: 150px;
     max-width: 240px;
     padding: .48rem .75rem;
     margin-block-end: -1px;
@@ -74,6 +93,7 @@
 }
 
 .betabs-tab-label {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -84,6 +104,7 @@
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
+    margin-inline-start: auto;
     width: 15px;
     height: 15px;
     border-radius: 50%;

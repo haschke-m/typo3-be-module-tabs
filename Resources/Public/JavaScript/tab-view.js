@@ -1,5 +1,8 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
 
+// jump with per scroll click in px
+const SCROLL_STEP = 200;
+
 // setup tab navigation bar and content wrapper
 // returns dom handles to get used by tabs.js
 export function setupTabNavigation(contentSlot) {
@@ -15,13 +18,26 @@ export function setupTabNavigation(contentSlot) {
     bar.className = 'betabs-bar';
     bar.setAttribute('role', 'tablist');
 
+    // seperate bar strip for tabs, plus & scroll arrows stay pinned
+    const scroll = document.createElement('div');
+    scroll.className = 'betabs-scroll';
+
+    const scrollLeftBtn = createScrollBtn('actions-chevron-left', 'Tabs nach links', () => scroll.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' }));
+    const scrollRightBtn = createScrollBtn('actions-chevron-right', 'Tabs nach rechts', () => scroll.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' }));
+
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'btn btn-default btn-sm betabs-add';
     addBtn.title = 'Neuen Tab öffnen';
     addBtn.innerHTML = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
     addBtn.addEventListener('click', () => createTab(null, null, true));
-    bar.appendChild(addBtn);
+
+    bar.append(scrollLeftBtn, scroll, scrollRightBtn, addBtn);
+
+    // mutation observer to check if scroll arrows should be visible or hidden if tabs overflowing
+    scroll.addEventListener('scroll', updateScrollArrows, { passive: true });
+    new ResizeObserver(updateScrollArrows).observe(scroll);
+    new MutationObserver(updateScrollArrows).observe(scroll, { childList: true });
 
     const frames = document.createElement('div');
     frames.className = 'betabs-frames';
@@ -42,29 +58,7 @@ export function setupTabNavigation(contentSlot) {
 
     wrap.append(bar, frames);
     contentSlot.appendChild(wrap);
-    return { wrap, bar, frames, addBtn, empty };
-}
-
-// show placeholder content if nothing is loaded
-export function updateEmptyState() {
-    const active = getActiveTab();
-    const isEmpty = !active || !active.url;
-    if (dom.empty) dom.empty.hidden = !isEmpty;
-    if (isEmpty) {
-        try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
-    }
-}
-
-// get module icon from clicked element
-function getModuleIconMarkup(module) {
-    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
-    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
-}
-
-// resolve the tab label module menu item, used if no doc title is given
-export function getLabelFromModuleItem(module) {
-    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
-    return (nameEl && nameEl.textContent.trim()) || module || '';
+    return { wrap, bar, scroll, scrollLeftBtn, scrollRightBtn, frames, addBtn, empty };
 }
 
 export function createTabElement(tab) {
@@ -95,8 +89,53 @@ export function createTabElement(tab) {
     return el;
 }
 
+// pinned scroll-arrow button, hidden until the tabs overflow
+function createScrollBtn(icon, title, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-default btn-sm betabs-scroll-btn';
+    btn.title = title;
+    btn.hidden = true;
+    btn.innerHTML = `<typo3-backend-icon identifier="${icon}" size="small"></typo3-backend-icon>`;
+    btn.addEventListener('click', onClick);
+    return btn;
+}
+
+// show scroll arrow if tabs overflow and:
+// left if scrolled of start, right until end is reached
+function updateScrollArrows() {
+    const s = dom.scroll;
+    if (!s) return;
+    const overflow = s.scrollWidth - s.clientWidth > 1;
+    dom.scrollLeftBtn.hidden = !overflow || s.scrollLeft <= 1;
+    dom.scrollRightBtn.hidden = !overflow || s.scrollLeft >= s.scrollWidth - s.clientWidth - 1;
+}
+
+// show placeholder content if nothing is loaded
+export function updateEmptyState() {
+    const active = getActiveTab();
+    const isEmpty = !active || !active.url;
+    if (dom.empty) dom.empty.hidden = !isEmpty;
+    if (isEmpty) {
+        try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
+    }
+}
+
 export function updateTabLabel(tab) {
     if (tab.labelEl) tab.labelEl.textContent = tab.title || tab.module || '…';
     if (tab.tabEl) tab.tabEl.title = tab.title || tab.module || '';
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
+    updateScrollArrows();
+}
+
+// get module icon from clicked element
+function getModuleIconMarkup(module) {
+    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
+    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
+}
+
+// resolve the tab label module menu item, used if no doc title is given
+export function getLabelFromModuleItem(module) {
+    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
+    return (nameEl && nameEl.textContent.trim()) || module || '';
 }
