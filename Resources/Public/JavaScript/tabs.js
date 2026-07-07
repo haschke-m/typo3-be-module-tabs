@@ -8,7 +8,7 @@
 
 import { waitFor, getPageId } from './tab-utility.js';
 import { persist, restore } from './tab-storage.js';
-import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState } from './tab-view.js';
+import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState, getLabelFromModuleItem } from './tab-view.js';
 import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded } from './tab-backend.js';
 
 const IFRAME_CLASSES = ['t3js-scaffold-content-module-iframe', 'scaffold-content-module-iframe'];
@@ -94,10 +94,10 @@ export function closeTab(tab) {
 }
 
 function onTabFrameLoad(tab) {
-  let title = tab.module;
   let moduleName = tab.module;
+  let doc;
   try {
-    const doc = tab.iframe.contentDocument;
+    doc = tab.iframe.contentDocument;
     if (doc) {
       // typo3 backend renders full backend scaffold if Sec-Fetch-Dest: document on page reload (and tab restoring)
       // this pulls the real module endpoints and reloads it into the iframe since the typo3 backend don't know about module tabs
@@ -110,7 +110,6 @@ function onTabFrameLoad(tab) {
           return;
         }
       }
-      title = doc.title || title;
       const moduleEl = doc.body && doc.body.querySelector('.module[data-module-name]');
       if (moduleEl) moduleName = moduleEl.getAttribute('data-module-name');
       // keep url in sync with in-iframe navigation
@@ -118,11 +117,11 @@ function onTabFrameLoad(tab) {
       tab.pageId = getPageId(tab.url);
     }
   } catch (e) { /* cross-origin — not expected in backend */ }
-  tab.title = title;
   if (moduleName) tab.module = moduleName;
+  tab.title = doc.title || getLabelFromModuleItem(tab.module);
   updateTabLabel(tab);
   if (tab.id === activeTabId) {
-    document.title = title || document.title;
+    document.title = tab.title || document.title;
     try { tab.iframe.contentWindow.name = 'list_frame'; } catch (e) { /* noop */ }
     dispatchModuleLoaded(tab);
   }

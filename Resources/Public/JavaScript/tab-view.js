@@ -61,6 +61,12 @@ function getModuleIconMarkup(module) {
     return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
 }
 
+// resolve the tab label module menu item, used if no doc title is given
+export function getLabelFromModuleItem(module) {
+    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
+    return (nameEl && nameEl.textContent.trim()) || module || '';
+}
+
 export function createTabElement(tab) {
     const el = document.createElement('div');
     el.className = 'betabs-tab';
