@@ -138,31 +138,9 @@ function updateScrollArrows() {
     dom.scrollRightBtn.hidden = !overflow || s.scrollLeft >= s.scrollWidth - s.clientWidth - 1;
 }
 
-// show placeholder content if nothing is loaded
-export function updateEmptyState() {
-    const active = getActiveTab();
-    const isEmpty = !active || !active.url;
-    if (dom.empty) dom.empty.hidden = !isEmpty;
-    if (isEmpty) {
-        try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
-    }
-}
-
 export function updateTabLabel(tab) {
     if (tab.labelEl) tab.labelEl.textContent = resolveTabLabel(tab) || '…';
     if (tab.tabEl) tab.tabEl.title = resolveTabLabel(tab);
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
     updateScrollArrows();
-}
-
-// get module icon from clicked element
-function getModuleIconMarkup(module) {
-    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
-    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
-}
-
-// resolve the tab label module menu item, used if no doc title is given
-export function getLabelFromModuleItem(module) {
-    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
-    return (nameEl && nameEl.textContent.trim()) || module || '';
 }
