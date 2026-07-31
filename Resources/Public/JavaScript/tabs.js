@@ -73,9 +73,13 @@ export function activateTab(tab) {
       try { f.contentWindow.name = 'list_frame'; } catch (e) { /* should never be called */ }
     } else {
       f.setAttribute('hidden', '');
-      if (f.getAttribute('name') === 'list_frame') f.removeAttribute('name');
       if (f.id === 'typo3-contentIframe') f.removeAttribute('id');
       f.classList.remove(...IFRAME_CLASSES);
+
+      // rename inactive tabs, so only the active tab is named 'list_frame' which otherwise
+      // breaks the navigation
+      try { f.contentWindow.name = 'betabs-' + t.id; } catch (e) { /* pre-load */ }
+      if (f.getAttribute('name') === 'list_frame') f.removeAttribute('name');
     }
   });
   if (tab.title) document.title = tab.title;
@@ -125,7 +129,7 @@ function onTabFrameLoad(tab) {
       tab.pageId = getPageId(tab.url);
     }
   } catch (e) { /* cross-origin — not expected in backend */ }
-  if (moduleName !== tab.module) console.debug('[be_tabs] frameload tab#' + tab.id + ' module', tab.module, '→', moduleName, '| url', tab.url);
+
   if (moduleName) tab.module = moduleName;
   tab.title = doc.title || getLabelFromModuleItem(tab.module);
   updateTabLabel(tab);
@@ -140,7 +144,6 @@ function onTabFrameLoad(tab) {
 // navigate active tab or focus existing tab of same module
 // reload it only when the id param changed (page-tree navigation)
 export function navigateOrFocusTab(module, url) {
-  console.debug('[be_tabs] navigateOrFocusTab called | module', module, '| active#', activeTabId, '| url', url);
   if (!module) {
     // in-module navigation without module hint → keep it in the active tab
     const a = getActiveTab();
@@ -149,7 +152,6 @@ export function navigateOrFocusTab(module, url) {
     return;
   }
   const existing = tabs.find((t) => t.module === module);
-  console.debug('[be_tabs] navigate module', module, '| matched tab#', existing?.id, '| active#', activeTabId, '| url', url);
   if (existing) {
     if (existing.pageId !== getPageId(url)) loadTab(existing, url, getPageId(url));
     activateTab(existing);
