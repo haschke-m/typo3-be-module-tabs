@@ -65,7 +65,11 @@ function getModuleIconMarkup(module) {
 // resolve the tab label module menu item, used if no doc title is given
 export function getLabelFromModuleItem(module) {
     const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
-    return (nameEl && nameEl.textContent.trim()) || module || '';
+    return (nameEl && nameEl.textContent.trim()) || '';
+}
+
+function resolveTabLabel(tab) {
+    return tab.title || getLabelFromModuleItem(tab.module);
 }
 
 export function createTabElement(tab) {
@@ -79,7 +83,7 @@ export function createTabElement(tab) {
 
     const label = document.createElement('span');
     label.className = 'betabs-tab-label';
-    label.textContent = tab.title || tab.module || '…';
+    label.textContent = resolveTabLabel(tab) || '…';
 
     const close = document.createElement('span');
     close.className = 'betabs-tab-close';
@@ -97,7 +101,7 @@ export function createTabElement(tab) {
 }
 
 export function updateTabLabel(tab) {
-    if (tab.labelEl) tab.labelEl.textContent = tab.title || tab.module || '…';
-    if (tab.tabEl) tab.tabEl.title = tab.title || tab.module || '';
+    if (tab.labelEl) tab.labelEl.textContent = resolveTabLabel(tab) || '…';
+    if (tab.tabEl) tab.tabEl.title = resolveTabLabel(tab);
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
 }

@@ -106,6 +106,8 @@ export function closeTab(tab) {
 }
 
 function onTabFrameLoad(tab) {
+  if (!tab.iframe) return;
+
   let moduleName = tab.module;
   let doc;
   try {
@@ -131,7 +133,7 @@ function onTabFrameLoad(tab) {
   } catch (e) { /* cross-origin — not expected in backend */ }
 
   if (moduleName) tab.module = moduleName;
-  tab.title = doc.title || getLabelFromModuleItem(tab.module);
+  tab.title = doc?.title || getLabelFromModuleItem(tab.module);
   updateTabLabel(tab);
   if (tab.id === activeTabId) {
     document.title = tab.title || document.title;
