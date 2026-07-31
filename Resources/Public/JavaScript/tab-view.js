@@ -1,4 +1,5 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
+import { localize } from './tab-utility.js';
 
 // jump with per scroll click in px
 const SCROLL_STEP = 200;
@@ -28,7 +29,7 @@ export function setupTabNavigation(contentSlot) {
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'btn btn-default btn-sm betabs-add';
-    addBtn.title = 'Neuen Tab öffnen';
+    addBtn.title = localize('beTabs.newTab', 'Open new tab');
     addBtn.innerHTML = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
     addBtn.addEventListener('click', () => createTab(null, null, true));
 
@@ -51,14 +52,40 @@ export function setupTabNavigation(contentSlot) {
       <line x1="24" y1="24" x2="40" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <line x1="32" y1="16" x2="32" y2="32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <p class="betabs-empty-title">It's a little quiet in here.</p>
-    <p class="betabs-empty-cta">Start working now!</p>
+    <p class="betabs-empty-title">${localize('beTabs.emptyTitle', "It's a little quiet in here.")}</p>
+    <p class="betabs-empty-cta">${localize('beTabs.emptyCta', 'Start working now!')}</p>
   `;
     frames.appendChild(empty);
 
     wrap.append(bar, frames);
     contentSlot.appendChild(wrap);
     return { wrap, bar, scroll, scrollLeftBtn, scrollRightBtn, frames, addBtn, empty };
+}
+
+// show placeholder content if nothing is loaded
+export function updateEmptyState() {
+    const active = getActiveTab();
+    const isEmpty = !active || !active.url;
+    if (dom.empty) dom.empty.hidden = !isEmpty;
+    if (isEmpty) {
+        try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
+    }
+}
+
+// get module icon from clicked element
+function getModuleIconMarkup(module) {
+    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
+    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
+}
+
+// resolve the tab label module menu item, used if no doc title is given
+export function getLabelFromModuleItem(module) {
+    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
+    return (nameEl && nameEl.textContent.trim()) || '';
+}
+
+function resolveTabLabel(tab) {
+    return tab.title || getLabelFromModuleItem(tab.module);
 }
 
 export function createTabElement(tab) {
@@ -72,11 +99,11 @@ export function createTabElement(tab) {
 
     const label = document.createElement('span');
     label.className = 'betabs-tab-label';
-    label.textContent = tab.title || tab.module || '…';
+    label.textContent = resolveTabLabel(tab) || '…';
 
     const close = document.createElement('span');
     close.className = 'betabs-tab-close';
-    close.title = 'Tab schließen';
+    close.title = localize('beTabs.closeTab', 'Close tab');
     close.innerHTML = '<typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>';
     close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 
@@ -122,8 +149,8 @@ export function updateEmptyState() {
 }
 
 export function updateTabLabel(tab) {
-    if (tab.labelEl) tab.labelEl.textContent = tab.title || tab.module || '…';
-    if (tab.tabEl) tab.tabEl.title = tab.title || tab.module || '';
+    if (tab.labelEl) tab.labelEl.textContent = resolveTabLabel(tab) || '…';
+    if (tab.tabEl) tab.tabEl.title = resolveTabLabel(tab);
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
     updateScrollArrows();
 }

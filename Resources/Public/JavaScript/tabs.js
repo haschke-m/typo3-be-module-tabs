@@ -9,7 +9,7 @@
 import { waitFor, getPageId } from './tab-utility.js';
 import { persist, restore } from './tab-storage.js';
 import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState, getLabelFromModuleItem } from './tab-view.js';
-import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded } from './tab-backend.js';
+import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree } from './tab-backend.js';
 
 const IFRAME_CLASSES = ['t3js-scaffold-content-module-iframe', 'scaffold-content-module-iframe'];
 
@@ -52,7 +52,13 @@ function loadTab(tab, url, pageId) {
 
 export function activateTab(tab) {
   if (!tab) return;
+
+  const previousTab = getActiveTab();
+  const isSwitching = !previousTab || previousTab.id !== tab.id;
+  if (previousTab && isSwitching) captureNavigationTree(previousTab);
+
   activeTabId = tab.id;
+
   tabs.forEach((t) => {
     const active = t.id === activeTabId;
     t.tabEl?.classList.toggle('betabs-tab--active', active);
@@ -67,14 +73,20 @@ export function activateTab(tab) {
       try { f.contentWindow.name = 'list_frame'; } catch (e) { /* should never be called */ }
     } else {
       f.setAttribute('hidden', '');
-      if (f.getAttribute('name') === 'list_frame') f.removeAttribute('name');
       if (f.id === 'typo3-contentIframe') f.removeAttribute('id');
       f.classList.remove(...IFRAME_CLASSES);
+
+      // rename inactive tabs, so only the active tab is named 'list_frame' which otherwise
+      // breaks the navigation
+      try { f.contentWindow.name = 'betabs-' + t.id; } catch (e) { /* pre-load */ }
+      if (f.getAttribute('name') === 'list_frame') f.removeAttribute('name');
     }
   });
   // bring the tab into view if it sits outside the scroll strip
   tab.tabEl?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
   if (tab.title) document.title = tab.title;
+
+  if (isSwitching) restoreNavigationTree(tab);
   dispatchModuleLoaded(tab);
   updateEmptyState();
   persist();
@@ -96,6 +108,8 @@ export function closeTab(tab) {
 }
 
 function onTabFrameLoad(tab) {
+  if (!tab.iframe) return;
+
   let moduleName = tab.module;
   let doc;
   try {
@@ -119,8 +133,9 @@ function onTabFrameLoad(tab) {
       tab.pageId = getPageId(tab.url);
     }
   } catch (e) { /* cross-origin — not expected in backend */ }
+
   if (moduleName) tab.module = moduleName;
-  tab.title = doc.title || getLabelFromModuleItem(tab.module);
+  tab.title = doc?.title || getLabelFromModuleItem(tab.module);
   updateTabLabel(tab);
   if (tab.id === activeTabId) {
     document.title = tab.title || document.title;

@@ -24,6 +24,7 @@ final class BackendAssetListener
         $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
             JavaScriptModuleInstruction::create('@haschke/be-tabs/main.js')
         );
+        $this->pageRenderer->addInlineLanguageLabelFile('EXT:be_tabs/Resources/Private/Language/locallang.xlf');
         $this->pageRenderer->addCssFile('EXT:be_tabs/Resources/Public/Css/tabs.css');
 
         if ((new Typo3Version())->getMajorVersion() === 13) {

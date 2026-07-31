@@ -2,6 +2,32 @@
  * functions to integrate tab behaviour in TYPO3 backend modules
  */
 import { navigateOrFocusTab, getActiveTab, createTab } from './tabs.js';
+import { localize } from './tab-utility.js';
+import { ModuleStateStorage } from '@typo3/backend/storage/module-state-storage.js';
+import { ModuleUtility } from '@typo3/backend/module.js';
+
+// identifies current tree mount, page tree is always 'web'
+// other trees fall back to the module name prefix, e.g fileadmin tree
+function treeMount(moduleName) {
+    if (!moduleName) return null;
+    const mod = ModuleUtility.getFromName(moduleName);
+    if (mod.navigationComponentId === '@typo3/backend/tree/page-tree-element') return 'web';
+    return moduleName.split('_')[0];
+}
+
+// snapshots current tabs tree state when navigating away
+// restored when coming back
+export function captureNavigationTree(tab) {
+    const mount = treeMount(tab.module);
+    if (mount) tab.treeState = ModuleStateStorage.current(mount);
+}
+
+// restore tabs tree state
+export function restoreNavigationTree(tab) {
+    const mount = treeMount(tab.module);
+    const savedId = tab.treeState && tab.treeState.identifier;
+    if (mount && savedId) ModuleStateStorage.update(mount, savedId);
+}
 
 // hook into ContentContainer and route everything into iframe pool
 export function overrideBackendContentContainer(cc) {
@@ -45,7 +71,7 @@ export function wireModuleTooltip() {
     const tooltip = document.createElement('div');
     tooltip.className = 'betabs-tooltip';
     tooltip.innerHTML = '<typo3-backend-icon identifier="actions-info" size="small"></typo3-backend-icon>'
-        + '<span>Try using CTRL + Mouse click to open in a new tab!</span>';
+        + `<span>${localize('beTabs.newTabHint', 'Try using CTRL + Mouse click to open in a new tab!')}</span>`;
     document.body.appendChild(tooltip);
 
     let current = null;

@@ -9,6 +9,21 @@
             <trans-unit id="userSettings.disable" resname="userSettings.disable">
                 <source>Disable tabs</source>
             </trans-unit>
+            <trans-unit id="beTabs.newTab" resname="beTabs.newTab">
+                <source>Open new tab</source>
+            </trans-unit>
+            <trans-unit id="beTabs.closeTab" resname="beTabs.closeTab">
+                <source>Close tab</source>
+            </trans-unit>
+            <trans-unit id="beTabs.emptyTitle" resname="beTabs.emptyTitle">
+                <source>It's a little quiet in here.</source>
+            </trans-unit>
+            <trans-unit id="beTabs.emptyCta" resname="beTabs.emptyCta">
+                <source>Start working now!</source>
+            </trans-unit>
+            <trans-unit id="beTabs.newTabHint" resname="beTabs.newTabHint">
+                <source>Try using CTRL + Mouse click to open in a new tab!</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>
