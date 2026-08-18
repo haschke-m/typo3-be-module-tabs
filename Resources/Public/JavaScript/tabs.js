@@ -8,8 +8,8 @@
 
 import { waitFor, getPageId } from './tab-utility.js';
 import { persist, restore } from './tab-storage.js';
-import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState, getLabelFromModuleItem } from './tab-view.js';
-import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree } from './tab-backend.js';
+import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState } from './tab-view.js';
+import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree, getLabelFromModuleItem } from './tab-backend.js';
 
 const IFRAME_CLASSES = ['t3js-scaffold-content-module-iframe', 'scaffold-content-module-iframe'];
 

@@ -1,9 +1,8 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
 import { startTabDrag, didDrag } from './tab-view-dragdrop.js';
 import { localize } from './tab-utility.js';
-
-// jump with per scroll click in px
-const SCROLL_STEP = 200;
+import { SCROLL_STEP, createScrollBtn, updateScrollArrows } from './tab-view-scroll.js';
+import { getModuleIconMarkup, getLabelFromModuleItem } from './tab-backend.js';
 
 // setup tab navigation bar and content wrapper
 // returns dom handles to get used by tabs.js
@@ -73,18 +72,6 @@ export function updateEmptyState() {
     }
 }
 
-// get module icon from clicked element
-function getModuleIconMarkup(module) {
-    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
-    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
-}
-
-// resolve the tab label module menu item, used if no doc title is given
-export function getLabelFromModuleItem(module) {
-    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
-    return (nameEl && nameEl.textContent.trim()) || '';
-}
-
 function resolveTabLabel(tab) {
     return tab.title || getLabelFromModuleItem(tab.module);
 }
@@ -116,28 +103,6 @@ export function createTabElement(tab) {
     tab.iconEl = icon;
     tab.labelEl = label;
     return el;
-}
-
-// pinned scroll-arrow button, hidden until the tabs overflow
-function createScrollBtn(icon, title, onClick) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-default btn-sm betabs-scroll-btn';
-    btn.title = title;
-    btn.hidden = true;
-    btn.innerHTML = `<typo3-backend-icon identifier="${icon}" size="small"></typo3-backend-icon>`;
-    btn.addEventListener('click', onClick);
-    return btn;
-}
-
-// show scroll arrow if tabs overflow and:
-// left if scrolled of start, right until end is reached
-function updateScrollArrows() {
-    const s = dom.scroll;
-    if (!s) return;
-    const overflow = s.scrollWidth - s.clientWidth > 1;
-    dom.scrollLeftBtn.hidden = !overflow || s.scrollLeft <= 1;
-    dom.scrollRightBtn.hidden = !overflow || s.scrollLeft >= s.scrollWidth - s.clientWidth - 1;
 }
 
 export function updateTabLabel(tab) {

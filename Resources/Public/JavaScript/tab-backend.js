@@ -29,6 +29,18 @@ export function restoreNavigationTree(tab) {
     if (mount && savedId) ModuleStateStorage.update(mount, savedId);
 }
 
+// get module icon from clicked element
+export function getModuleIconMarkup(module) {
+    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
+    return iconEl ? iconEl.innerHTML : '<typo3-backend-icon identifier="actions-browser" size="small"></typo3-backend-icon>';
+}
+
+// resolve the tab label module menu item, used if no doc title is given
+export function getLabelFromModuleItem(module) {
+    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
+    return (nameEl && nameEl.textContent.trim()) || '';
+}
+
 // hook into ContentContainer and route everything into iframe pool
 export function overrideBackendContentContainer(cc) {
     const originalSetUrl = cc.setUrl.bind(cc);
