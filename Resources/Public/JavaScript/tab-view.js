@@ -72,6 +72,13 @@ function resolveTabLabel(tab) {
     return tab.title || getLabelFromModuleItem(tab.module);
 }
 
+// until a tab knows its title (e.g restoring many tabs) show spinner instead of a placeholder text
+function renderTabLabel(labelEl, tab) {
+    const text = resolveTabLabel(tab);
+    if (text) labelEl.textContent = text;
+    else labelEl.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon>';
+}
+
 export function createTabElement(tab) {
     const el = document.createElement('div');
     el.className = 'betabs-tab';
@@ -83,7 +90,7 @@ export function createTabElement(tab) {
 
     const label = document.createElement('span');
     label.className = 'betabs-tab-label';
-    label.textContent = resolveTabLabel(tab) || '…';
+    renderTabLabel(label, tab);
 
     const close = document.createElement('span');
     close.className = 'betabs-tab-close';
@@ -101,7 +108,7 @@ export function createTabElement(tab) {
 }
 
 export function updateTabLabel(tab) {
-    if (tab.labelEl) tab.labelEl.textContent = resolveTabLabel(tab) || '…';
+    if (tab.labelEl) renderTabLabel(tab.labelEl, tab);
     if (tab.tabEl) tab.tabEl.title = resolveTabLabel(tab);
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
 }

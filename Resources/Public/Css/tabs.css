@@ -79,6 +79,12 @@
     white-space: nowrap;
 }
 
+/* spinner shown in place of the label while the tab has no title yet */
+.betabs-tab-label typo3-backend-icon {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
 .betabs-tab-close {
     display: flex;
     align-items: center;
