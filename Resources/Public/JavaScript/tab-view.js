@@ -85,7 +85,9 @@ function resolveTabLabel(tab) {
 function renderTabLabel(labelEl, tab) {
     const text = resolveTabLabel(tab);
     if (text) labelEl.textContent = text;
-    else labelEl.innerHTML = ICON_SPINNER;
+    // only while something is actually loading
+    else if (tab.url || tab.module) labelEl.innerHTML = ICON_SPINNER;
+    else labelEl.textContent = '';
 }
 
 export function createTabElement(tab) {
