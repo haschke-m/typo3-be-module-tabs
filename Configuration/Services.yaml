@@ -6,3 +6,9 @@ services:
 
   Haschke\BeTabs\:
     resource: '../Classes/*'
+
+  Haschke\BeTabs\EventListener\BackendAssetListener:
+    tags:
+      - name: event.listener
+        identifier: 'be-tabs/backend-assets'
+        event: TYPO3\CMS\Backend\Controller\Event\AfterBackendPageRenderEvent
