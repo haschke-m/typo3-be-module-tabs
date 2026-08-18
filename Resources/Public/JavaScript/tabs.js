@@ -92,6 +92,13 @@ export function activateTab(tab) {
   persist();
 }
 
+// persist new tab order after drag & drop
+export function reorderTabsFromDom() {
+  const order = [...dom.scroll.querySelectorAll('.betabs-tab')];
+  tabs.sort((a, b) => order.indexOf(a.tabEl) - order.indexOf(b.tabEl));
+  persist();
+}
+
 export function closeTab(tab) {
   const idx = tabs.indexOf(tab);
   if (idx === -1) return;

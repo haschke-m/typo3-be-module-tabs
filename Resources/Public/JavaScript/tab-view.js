@@ -1,4 +1,5 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
+import { startTabDrag, didDrag } from './tab-view-dragdrop.js';
 import { localize } from './tab-utility.js';
 
 // jump with per scroll click in px
@@ -108,8 +109,9 @@ export function createTabElement(tab) {
     close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 
     el.append(icon, label, close);
-    el.addEventListener('click', () => activateTab(tab));
+    el.addEventListener('click', () => { if (!didDrag) activateTab(tab); });
     el.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeTab(tab); } });
+    el.addEventListener('pointerdown', (e) => startTabDrag(el, e));
 
     tab.iconEl = icon;
     tab.labelEl = label;

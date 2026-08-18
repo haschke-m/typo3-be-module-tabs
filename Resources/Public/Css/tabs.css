@@ -72,6 +72,15 @@
     --betabs-tab-bg: color-mix(in srgb, var(--typo3-surface-container-lowest, #fff), var(--betabs-tab-color) 10%);
 }
 
+.betabs-tab--dragging {
+    position: relative;
+    z-index: 2;
+    cursor: grabbing;
+    opacity: .85;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+    transition: none;   /* the transform must track the pointer 1:1 */
+}
+
 .betabs-tab--active {
     --betabs-tab-bg: var(--typo3-surface-container-lowest, #fff);
     font-weight: 600;
@@ -220,4 +229,13 @@
 .betabs-tooltip typo3-backend-icon {
     flex: 0 0 auto;
     color: var(--typo3-state-primary-color, #2175d9);
+}
+
+/* transparent shield during a tab drag: keeps pointer events out of the module
+   iframes so the drag keeps following the cursor and still ends on release */
+.betabs-drag-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 29999;
+    cursor: grabbing;
 }
