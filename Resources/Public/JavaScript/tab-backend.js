@@ -6,6 +6,9 @@ import { localize } from './tab-utility.js';
 import { TOOLTIP_HTML } from './tab-view.js';
 import { ModuleStateStorage } from '@typo3/backend/storage/module-state-storage.js';
 import { ModuleUtility } from '@typo3/backend/module.js';
+import TriggerRequest from '@typo3/backend/event/trigger-request.js';
+import ClientRequest from '@typo3/backend/event/client-request.js';
+import InteractionRequest from '@typo3/backend/event/interaction-request.js';
 
 // identifies current tree mount, page tree is always 'web'
 // other trees fall back to the module name prefix, e.g fileadmin tree
@@ -42,21 +45,33 @@ export function getLabelFromModuleItem(module) {
     return (nameEl && nameEl.textContent.trim()) || '';
 }
 
+// check content container consumers if action should be executed just like the core
+// e.g. FormEngine can block closing a form with a "do you really wanna leave without saving?" dialog
+function askConsumers(cc, type, request) {
+    if (!cc.consumerScope?.invoke) return Promise.resolve();
+    if (!(request instanceof InteractionRequest)) request = new ClientRequest(type, null);
+    return cc.consumerScope.invoke(new TriggerRequest(type, request));
+}
+
 // hook into ContentContainer and route everything into iframe pool
 export function overrideBackendContentContainer(cc) {
     const originalSetUrl = cc.setUrl.bind(cc);
     cc.setUrl = (url, request, module) => {
         if (self !== top) return originalSetUrl(url, request, module);
         if (url instanceof URL) url = url.toString();
-        navigateOrFocusTab(module || null, url);
-        return Promise.resolve();
+        const navigation = askConsumers(cc, 'typo3.setUrl', request);
+        navigation.then(() => navigateOrFocusTab(module || null, url));
+        return navigation;
     };
     cc.get = () => getActiveTab()?.iframe?.contentWindow;
     cc.getUrl = () => getActiveTab()?.url || '';
-    cc.refresh = () => {
-        const f = getActiveTab()?.iframe;
-        if (f) f.contentWindow.location.reload();
-        return Promise.resolve();
+    cc.refresh = (request) => {
+        const refreshing = askConsumers(cc, 'typo3.refresh', request);
+        refreshing.then(() => {
+            const f = getActiveTab()?.iframe;
+            if (f) f.contentWindow.location.reload();
+        });
+        return refreshing;
     };
 }
 

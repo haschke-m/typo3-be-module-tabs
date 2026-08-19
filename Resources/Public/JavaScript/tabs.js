@@ -7,6 +7,7 @@
  */
 
 import { waitFor, getPageId } from './tab-utility.js';
+import { getUnsupportedReason } from './tab-guards.js';
 import { persist, restore } from './tab-storage.js';
 import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState } from './tab-view.js';
 import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree, getLabelFromModuleItem } from './tab-backend.js';
@@ -185,8 +186,11 @@ export async function initialize() {
     console.debug('[be_tabs] initialize()…');
     const router = await waitFor(() => document.querySelector('typo3-backend-module-router'));
     const cc = await waitFor(() => top.TYPO3?.Backend?.ContentContainer);
-    if (!router || !cc) {
-      console.warn('[be_tabs] backend not ready — router:', !!router, 'ContentContainer:', !!cc);
+    // check mandatory router & content container instances / methods to make sure be tabs can function in this setup
+    // otherwise cancel initializing
+    const unsupported = getUnsupportedReason(cc, router);
+    if (unsupported) {
+      console.warn('[be_tabs] tabs disabled, backend navigation not supported:', unsupported);
       return;
     }
     initialized = true;
