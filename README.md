@@ -1,7 +1,7 @@
 # BE Module Tabs
 
 Browser-like tab navigation for the TYPO3 backend.  
-Currently supporting TYPO3 v13 and v14.
+Currently supporting TYPO3 v13 and v14. (experimental version for v12 in branch `typo3-v12`)
 
 <img width="800" height="493" alt="example be tabs (2)" src="https://github.com/user-attachments/assets/b78d667a-35d8-4a27-95d1-c9624f4077d0" />
 
@@ -23,6 +23,16 @@ open module instead of resetting it.
   reloading it.
 - Open tabs are restored after a full backend reload.
 - Tabbing can be disabled in the backend user settings.
+
+## Note on backend internals
+
+To put every tab in its own iframe, this extension takes over parts of the
+backend that TYPO3 does not offer as a public API: it replaces the navigation
+methods on `TYPO3.Backend.ContentContainer` and disables the core module router.
+
+A TYPO3 update can therefore change what this relies on. To avoid a broken
+backend, the extension checks on startup whether the backend still has the
+expected instances and methods. If it does not, the tabs stay off.
 
 ## Installation
 
