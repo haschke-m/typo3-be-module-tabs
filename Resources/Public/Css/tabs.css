@@ -108,6 +108,12 @@
     white-space: nowrap;
 }
 
+/* spinner shown in place of the label while the tab has no title yet */
+.betabs-tab-label typo3-backend-icon {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
 .betabs-tab-close {
     display: flex;
     align-items: center;
@@ -169,7 +175,11 @@
 }
 
 .betabs-empty-icon {
-    color: color-mix(in srgb, var(--typo3-state-primary-color, #2175d9), var(--typo3-text-color-base, #1a1a1a) 35%);
+    width: 88px;
+    height: 55px;
+    background-color: color-mix(in srgb, var(--typo3-state-primary-color, #2175d9), var(--typo3-text-color-base, #1a1a1a) 35%);
+    -webkit-mask: url('../Icons/empty-state.svg') no-repeat center / contain;
+    mask: url('../Icons/empty-state.svg') no-repeat center / contain;
     opacity: .7;
     animation: betabs-empty-breathe 3.5s ease-in-out infinite;
 }

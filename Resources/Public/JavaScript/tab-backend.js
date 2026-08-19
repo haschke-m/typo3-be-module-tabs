@@ -3,6 +3,7 @@
  */
 import { navigateOrFocusTab, getActiveTab, createTab } from './tabs.js';
 import { localize } from './tab-utility.js';
+import { TOOLTIP_HTML } from './tab-view.js';
 import { ModuleStateStorage } from '@typo3/backend/storage/module-state-storage.js';
 import { ModuleUtility } from '@typo3/backend/module.js';
 
@@ -82,8 +83,7 @@ export function wireNewTabShortcut() {
 export function wireModuleTooltip() {
     const tooltip = document.createElement('div');
     tooltip.className = 'betabs-tooltip';
-    tooltip.innerHTML = '<typo3-backend-icon identifier="actions-info" size="small"></typo3-backend-icon>'
-        + `<span>${localize('beTabs.newTabHint', 'Try using CTRL + Mouse click to open in a new tab!')}</span>`;
+    tooltip.innerHTML = TOOLTIP_HTML(localize('beTabs.newTabHint', 'Try using CTRL + Mouse click to open in a new tab!'));
     document.body.appendChild(tooltip);
 
     let current = null;
