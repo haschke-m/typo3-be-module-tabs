@@ -1,5 +1,8 @@
 import { createTab, activateTab, closeTab, getActiveTab, dom } from './tabs.js';
+import { startTabDrag, didDrag } from './tab-view-dragdrop.js';
 import { localize } from './tab-utility.js';
+import { SCROLL_STEP, createScrollBtn, updateScrollArrows } from './tab-view-scroll.js';
+import { getModuleIconMarkup, getLabelFromModuleItem } from './tab-backend.js';
 
 // markup rendered via innerHTML, kept in one place
 const ICON_PLUS = '<typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>';
@@ -31,13 +34,26 @@ export function setupTabNavigation(contentSlot) {
     bar.className = 'betabs-bar';
     bar.setAttribute('role', 'tablist');
 
+    // seperate bar strip for tabs, plus & scroll arrows stay pinned
+    const scroll = document.createElement('div');
+    scroll.className = 'betabs-scroll';
+
+    const scrollLeftBtn = createScrollBtn('actions-chevron-left', 'Tabs nach links', () => scroll.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' }));
+    const scrollRightBtn = createScrollBtn('actions-chevron-right', 'Tabs nach rechts', () => scroll.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' }));
+
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'btn btn-default btn-sm betabs-add';
     addBtn.title = localize('beTabs.newTab', 'Open new tab');
     addBtn.innerHTML = ICON_PLUS;
     addBtn.addEventListener('click', () => createTab(null, null, true));
-    bar.appendChild(addBtn);
+
+    bar.append(scrollLeftBtn, scroll, scrollRightBtn, addBtn);
+
+    // mutation observer to check if scroll arrows should be visible or hidden if tabs overflowing
+    scroll.addEventListener('scroll', updateScrollArrows, { passive: true });
+    new ResizeObserver(updateScrollArrows).observe(scroll);
+    new MutationObserver(updateScrollArrows).observe(scroll, { childList: true });
 
     const frames = document.createElement('div');
     frames.className = 'betabs-frames';
@@ -52,7 +68,7 @@ export function setupTabNavigation(contentSlot) {
 
     wrap.append(bar, frames);
     contentSlot.appendChild(wrap);
-    return { wrap, bar, frames, addBtn, empty };
+    return { wrap, bar, scroll, scrollLeftBtn, scrollRightBtn, frames, addBtn, empty };
 }
 
 // show placeholder content if nothing is loaded
@@ -63,18 +79,6 @@ export function updateEmptyState() {
     if (isEmpty) {
         try { top.TYPO3.Backend.NavigationContainer.hide(); } catch (e) { /* not ready yet */ }
     }
-}
-
-// get module icon from clicked element
-function getModuleIconMarkup(module) {
-    const iconEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-icon`);
-    return iconEl ? iconEl.innerHTML : ICON_MODULE_FALLBACK;
-}
-
-// resolve the tab label module menu item, used if no doc title is given
-export function getLabelFromModuleItem(module) {
-    const nameEl = module && document.querySelector(`[data-modulemenu-identifier="${module}"] .modulemenu-name`);
-    return (nameEl && nameEl.textContent.trim()) || '';
 }
 
 function resolveTabLabel(tab) {
@@ -110,8 +114,9 @@ export function createTabElement(tab) {
     close.addEventListener('click', (e) => { e.stopPropagation(); closeTab(tab); });
 
     el.append(icon, label, close);
-    el.addEventListener('click', () => activateTab(tab));
+    el.addEventListener('click', () => { if (!didDrag) activateTab(tab); });
     el.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); closeTab(tab); } });
+    el.addEventListener('pointerdown', (e) => startTabDrag(el, e));
 
     tab.iconEl = icon;
     tab.labelEl = label;
@@ -122,4 +127,5 @@ export function updateTabLabel(tab) {
     if (tab.labelEl) renderTabLabel(tab.labelEl, tab);
     if (tab.tabEl) tab.tabEl.title = resolveTabLabel(tab);
     if (tab.iconEl) tab.iconEl.innerHTML = getModuleIconMarkup(tab.module);
+    updateScrollArrows();
 }

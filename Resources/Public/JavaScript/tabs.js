@@ -8,8 +8,8 @@
 
 import { waitFor, getPageId } from './tab-utility.js';
 import { persist, restore } from './tab-storage.js';
-import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState, getLabelFromModuleItem } from './tab-view.js';
-import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree } from './tab-backend.js';
+import { setupTabNavigation, createTabElement, updateTabLabel, updateEmptyState } from './tab-view.js';
+import { overrideBackendContentContainer, wireNewTabShortcut, wireModuleTooltip, dispatchModuleLoaded, restoreNavigationTree, captureNavigationTree, getLabelFromModuleItem } from './tab-backend.js';
 
 const IFRAME_CLASSES = ['t3js-scaffold-content-module-iframe', 'scaffold-content-module-iframe'];
 
@@ -26,7 +26,7 @@ export function createTab(module, url, activate = true) {
   const tab = { id: ++tabIdSeq, module: module || null, url: null, pageId: null, iframe: null, tabEl: null, labelEl: null, title: null };
 
   tab.tabEl = createTabElement(tab);
-  dom.bar.insertBefore(tab.tabEl, dom.addBtn);
+  dom.scroll.appendChild(tab.tabEl);
   tabs.push(tab);
 
   if (url) loadTab(tab, url, getPageId(url));
@@ -82,11 +82,20 @@ export function activateTab(tab) {
       if (f.getAttribute('name') === 'list_frame') f.removeAttribute('name');
     }
   });
+  // bring the tab into view if it sits outside the scroll strip
+  tab.tabEl?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
   if (tab.title) document.title = tab.title;
 
   if (isSwitching) restoreNavigationTree(tab);
   dispatchModuleLoaded(tab);
   updateEmptyState();
+  persist();
+}
+
+// persist new tab order after drag & drop
+export function reorderTabsFromDom() {
+  const order = [...dom.scroll.querySelectorAll('.betabs-tab')];
+  tabs.sort((a, b) => order.indexOf(a.tabEl) - order.indexOf(b.tabEl));
   persist();
 }
 
